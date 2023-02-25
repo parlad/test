@@ -1,7 +1,11 @@
 import json
 import csv
 
-def extract_json_to_csv(json_file_path, csv_file_path):
+def extract_json_to_csv(json_file_path, config_file_path, csv_file_path):
+    # Load the configuration data
+    with open(config_file_path, 'r') as config_file:
+        config_data = json.load(config_file)
+
     # Open the JSON file for reading
     with open(json_file_path, 'r') as json_file:
         # Load the JSON data
@@ -12,17 +16,20 @@ def extract_json_to_csv(json_file_path, csv_file_path):
             # Create a CSV writer object
             csv_writer = csv.writer(csv_file)
 
-            # Extract the header row from the JSON data
-            header = list(json_data[0].keys())
+            # Extract the header row from the configuration data
+            header = config_data['columns']
             csv_writer.writerow(header)
 
             # Extract the data rows from the JSON data
             for row in json_data:
-                csv_writer.writerow(list(row.values()))
+                # Extract the selected columns from the row
+                selected_row = [row[col] for col in header]
+                csv_writer.writerow(selected_row)
 
-    print(f'Successfully extracted JSON data to {csv_file_path}!')
+    print(f'Successfully extracted selected JSON data to {csv_file_path}!')
 
 # Example usage
 json_file_path = 'example.json'
+config_file_path = 'config.json'
 csv_file_path = 'example.csv'
-extract_json_to_csv(json_file_path, csv_file_path)
+extract_json_to_csv(json_file_path, config_file_path, csv_file_path)
