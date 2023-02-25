@@ -1,35 +1,24 @@
 import json
 import csv
+import chardet
 
-def extract_json_to_csv(json_file_path, config_file_path, csv_file_path):
-    # Load the configuration data
-    with open(config_file_path, 'r') as config_file:
-        config_data = json.load(config_file)
+# Detect the encoding of the file
+with open('input_file.json', 'rb') as f:
+    result = chardet.detect(f.read())
 
-    # Open the JSON file for reading
-    with open(json_file_path, 'r') as json_file:
-        # Load the JSON data
-        json_data = json.load(json_file)
+# Open the file with the detected encoding
+with open('input_file.json', encoding=result['encoding']) as f:
+    data = json.load(f)
 
-        # Open the CSV file for writing
-        with open(csv_file_path, 'w', newline='') as csv_file:
-            # Create a CSV writer object
-            csv_writer = csv.writer(csv_file)
+# Define the columns to extract from the JSON data
+columns_to_extract = ['column1', 'column2', 'column3']
 
-            # Extract the header row from the configuration data
-            header = config_data['columns']
-            csv_writer.writerow(header)
+# Create a CSV file and write the column headers
+with open('output_file.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(columns_to_extract)
 
-            # Extract the data rows from the JSON data
-            for row in json_data:
-                # Extract the selected columns from the row
-                selected_row = [row[col] for col in header]
-                csv_writer.writerow(selected_row)
-
-    print(f'Successfully extracted selected JSON data to {csv_file_path}!')
-
-# Example usage
-json_file_path = 'example.json'
-config_file_path = 'config.json'
-csv_file_path = 'example.csv'
-extract_json_to_csv(json_file_path, config_file_path, csv_file_path)
+    # Extract the specified columns from the JSON data and write them to the CSV file
+    for item in data:
+        row = [item[column] for column in columns_to_extract]
+        writer.writerow(row)
